@@ -15,11 +15,12 @@ import org.springframework.data.gemfire.CacheFactoryBean;
 import org.springframework.data.gemfire.server.CacheServerFactoryBean;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
 import org.springframework.data.gemfire.RegionAttributesFactoryBean;
-import org.springframework.data.gemfire.ExpirationAttributesFactoryBean;
+import org.springframework.data.gemfire.expiration.ExpirationAttributesFactoryBean;
 import org.springframework.data.gemfire.wan.AsyncEventQueueFactoryBean;
 
 
 import org.apache.geode.cache.Cache;
+import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.ExpirationAttributes;
 
@@ -97,164 +98,164 @@ public class GeodeCacheServerConfiguration {
     }
 
 
-    // RegRaw Configurations
-    @Bean(name = "RegRaw")
-    PartitionedRegionFactoryBean<String, Object> rawRegion(Cache gemfireCache,
-                                                           @Qualifier("rawRegionAttributes") RegionAttributes<String, Object> rawRegionAttributes)
-    {
-        PartitionedRegionFactoryBean<String, Object> rawRegion = new PartitionedRegionFactoryBean<>();
+//     // RegRaw Configurations
+//     @Bean(name = "RegRaw")
+//     PartitionedRegionFactoryBean<String, Object> rawRegion(GemFireCache gemfireCache,
+//                                                            @Qualifier("rawRegionAttributes") RegionAttributes<String, Object> rawRegionAttributes)
+//     {
+//         PartitionedRegionFactoryBean<String, Object> rawRegion = new PartitionedRegionFactoryBean<>();
 
-        rawRegion.setCache(gemfireCache);
-        rawRegion.setClose(false);
-        rawRegion.setAttributes(rawRegionAttributes);
-        rawRegion.setName("RegRaw");
-        rawRegion.setPersistent(false);
+//         rawRegion.setCache(gemfireCache);
+//         rawRegion.setClose(false);
+//         rawRegion.setAttributes(rawRegionAttributes);
+//         rawRegion.setName("RegRaw");
+//         rawRegion.setPersistent(false);
 
-        return rawRegion;
-    }
+//         return rawRegion;
+//     }
 
-    @Bean
-    @SuppressWarnings("unchecked")
-    RegionAttributesFactoryBean rawRegionAttributes(@Qualifier("expirationAttributes") ExpirationAttributes expirationAttributes) {
-        RegionAttributesFactoryBean rawRegionAttributes = new RegionAttributesFactoryBean();
+//     @Bean
+//     @SuppressWarnings("unchecked")
+//     RegionAttributesFactoryBean rawRegionAttributes(@Qualifier("expirationAttributes") ExpirationAttributes expirationAttributes) {
+//         RegionAttributesFactoryBean rawRegionAttributes = new RegionAttributesFactoryBean();
 
-        rawRegionAttributes.addAsyncEventQueueId("rawQueue");
-        rawRegionAttributes.setKeyConstraint(String.class);
-        rawRegionAttributes.setValueConstraint(Object.class);
-        rawRegionAttributes.setEntryTimeToLive(expirationAttributes);
-        rawRegionAttributes.addCacheListener(serverCacheListener());
+//         rawRegionAttributes.addAsyncEventQueueId("rawQueue");
+//         rawRegionAttributes.setKeyConstraint(String.class);
+//         rawRegionAttributes.setValueConstraint(Object.class);
+//         rawRegionAttributes.setEntryTimeToLive(expirationAttributes);
+//         rawRegionAttributes.addCacheListener(serverCacheListener());
 
-        return rawRegionAttributes;
-    }
+//         return rawRegionAttributes;
+//     }
 
-    @Bean
-    @SuppressWarnings("unchecked")
-    ExpirationAttributesFactoryBean expirationAttributes() {
-        ExpirationAttributesFactoryBean expirationAttributes = new ExpirationAttributesFactoryBean();
+//     @Bean
+//     @SuppressWarnings("unchecked")
+//     ExpirationAttributesFactoryBean expirationAttributes() {
+//         ExpirationAttributesFactoryBean expirationAttributes = new ExpirationAttributesFactoryBean();
 
-        expirationAttributes.setTimeout(properties.getTimeout());
-        expirationAttributes.setAction(ExpirationAction.DESTROY);
+//         expirationAttributes.setTimeout(properties.getTimeout());
+//         expirationAttributes.setAction(ExpirationAction.DESTROY);
 
-        return expirationAttributes;
-    }
+//         return expirationAttributes;
+//     }
 
-    @Bean
-    RawAsyncEventListener rawAsyncEventListener() {
-        return new RawAsyncEventListener();
-    }
+//     @Bean
+//     RawAsyncEventListener rawAsyncEventListener() {
+//         return new RawAsyncEventListener();
+//     }
 
-    @Bean
-    ServerCacheListener serverCacheListener() {
-         return new ServerCacheListener();
-     }
+//     @Bean
+//     ServerCacheListener serverCacheListener() {
+//          return new ServerCacheListener();
+//      }
 
-    @Bean
-    AsyncEventQueueFactoryBean asyncEventQueue(Cache gemfireCache) {
-        AsyncEventQueueFactoryBean asyncEventQueue = new AsyncEventQueueFactoryBean(gemfireCache, rawAsyncEventListener());
-        asyncEventQueue.setName("rawQueue");
-        asyncEventQueue.setParallel(false);
-        asyncEventQueue.setDispatcherThreads(properties.getDispatcherThreads());
-        asyncEventQueue.setBatchTimeInterval(properties.getBatchTimeInterval());
-        asyncEventQueue.setBatchSize(properties.getBatchSize());
-        asyncEventQueue.setBatchConflationEnabled(true);
-        asyncEventQueue.setPersistent(false);
-        asyncEventQueue.setDiskSynchronous(false);
+//     @Bean
+//     AsyncEventQueueFactoryBean asyncEventQueue(Cache gemfireCache) {
+//         AsyncEventQueueFactoryBean asyncEventQueue = new AsyncEventQueueFactoryBean(gemfireCache, rawAsyncEventListener());
+//         asyncEventQueue.setName("rawQueue");
+//         asyncEventQueue.setParallel(false);
+//         asyncEventQueue.setDispatcherThreads(properties.getDispatcherThreads());
+//         asyncEventQueue.setBatchTimeInterval(properties.getBatchTimeInterval());
+//         asyncEventQueue.setBatchSize(properties.getBatchSize());
+//         asyncEventQueue.setBatchConflationEnabled(true);
+//         asyncEventQueue.setPersistent(false);
+//         asyncEventQueue.setDiskSynchronous(false);
 
-        return asyncEventQueue;
-    }
+//         return asyncEventQueue;
+//     }
 
-    // RegRouteCount Configurations
-    @Bean(name = "RegRouteCount")
-    PartitionedRegionFactoryBean<String, Integer> routeCountRegion(Cache gemfireCache)
-    {
-        PartitionedRegionFactoryBean<String, Integer> routeCountRegion = new PartitionedRegionFactoryBean<>();
+//     // RegRouteCount Configurations
+//     @Bean(name = "RegRouteCount")
+//     PartitionedRegionFactoryBean<String, Integer> routeCountRegion(Cache gemfireCache)
+//     {
+//         PartitionedRegionFactoryBean<String, Integer> routeCountRegion = new PartitionedRegionFactoryBean<>();
 
-        routeCountRegion.setCache(gemfireCache);
-        routeCountRegion.setClose(false);
-        routeCountRegion.setName("RegRouteCount");
-        routeCountRegion.setPersistent(false);
+//         routeCountRegion.setCache(gemfireCache);
+//         routeCountRegion.setClose(false);
+//         routeCountRegion.setName("RegRouteCount");
+//         routeCountRegion.setPersistent(false);
 
-        return routeCountRegion;
-    }
+//         return routeCountRegion;
+//     }
 
-    // RegRouteTop Configurations
-    @Bean(name = "RegRouteTop")
-    PartitionedRegionFactoryBean<Integer, Object> routeTopRegion(Cache gemfireCache)
-    {
-        PartitionedRegionFactoryBean<Integer, Object> routeTopRegion = new PartitionedRegionFactoryBean<>();
+//     // RegRouteTop Configurations
+//     @Bean(name = "RegRouteTop")
+//     PartitionedRegionFactoryBean<Integer, Object> routeTopRegion(Cache gemfireCache)
+//     {
+//         PartitionedRegionFactoryBean<Integer, Object> routeTopRegion = new PartitionedRegionFactoryBean<>();
 
-        routeTopRegion.setCache(gemfireCache);
-//        topRegion.setClose(false);
-        routeTopRegion.setName("RegRouteTop");
-        routeTopRegion.setPersistent(false);
+//         routeTopRegion.setCache(gemfireCache);
+// //        topRegion.setClose(false);
+//         routeTopRegion.setName("RegRouteTop");
+//         routeTopRegion.setPersistent(false);
 
-        return routeTopRegion;
-    }
+//         return routeTopRegion;
+//     }
 
-    // RegRouteTopTen Configurations
-    @Bean(name = "RegRouteTopTen")
-    PartitionedRegionFactoryBean<Integer, Object> routeToptenRegion(Cache gemfireCache)
-    {
-        PartitionedRegionFactoryBean<Integer, Object> routeToptenRegion = new PartitionedRegionFactoryBean<>();
+//     // RegRouteTopTen Configurations
+//     @Bean(name = "RegRouteTopTen")
+//     PartitionedRegionFactoryBean<Integer, Object> routeToptenRegion(Cache gemfireCache)
+//     {
+//         PartitionedRegionFactoryBean<Integer, Object> routeToptenRegion = new PartitionedRegionFactoryBean<>();
 
-        routeToptenRegion.setCache(gemfireCache);
-//        topTenRegion.setClose(false);
-        routeToptenRegion.setName("RegRouteTopTen");
-        routeToptenRegion.setPersistent(false);
+//         routeToptenRegion.setCache(gemfireCache);
+// //        topTenRegion.setClose(false);
+//         routeToptenRegion.setName("RegRouteTopTen");
+//         routeToptenRegion.setPersistent(false);
 
-        return routeToptenRegion;
-    }
+//         return routeToptenRegion;
+//     }
 
-    // RegDistrictCount Configurations
-    @Bean(name = "RegDistrictCount")
-    PartitionedRegionFactoryBean<String, Object> districtCountRegion(Cache gemfireCache)
-    {
-        PartitionedRegionFactoryBean<String, Object> districtCountRegion = new PartitionedRegionFactoryBean<>();
+//     // RegDistrictCount Configurations
+//     @Bean(name = "RegDistrictCount")
+//     PartitionedRegionFactoryBean<String, Object> districtCountRegion(Cache gemfireCache)
+//     {
+//         PartitionedRegionFactoryBean<String, Object> districtCountRegion = new PartitionedRegionFactoryBean<>();
 
-        districtCountRegion.setCache(gemfireCache);
-        districtCountRegion.setName("RegDistrictCount");
-        districtCountRegion.setPersistent(false);
+//         districtCountRegion.setCache(gemfireCache);
+//         districtCountRegion.setName("RegDistrictCount");
+//         districtCountRegion.setPersistent(false);
 
-        return districtCountRegion;
-    }
+//         return districtCountRegion;
+//     }
 
-    // RegDropoffDistrictTop Configurations
-    @Bean(name = "RegDropoffDistrictTop")
-    PartitionedRegionFactoryBean<String, Object> dropoffDistrictTopRegion(Cache gemfireCache)
-    {
-        PartitionedRegionFactoryBean<String, Object> dropoffDistrictTopRegion = new PartitionedRegionFactoryBean<>();
+//     // RegDropoffDistrictTop Configurations
+//     @Bean(name = "RegDropoffDistrictTop")
+//     PartitionedRegionFactoryBean<String, Object> dropoffDistrictTopRegion(Cache gemfireCache)
+//     {
+//         PartitionedRegionFactoryBean<String, Object> dropoffDistrictTopRegion = new PartitionedRegionFactoryBean<>();
 
-        dropoffDistrictTopRegion.setCache(gemfireCache);
-        dropoffDistrictTopRegion.setName("RegDropoffDistrictTop");
-        dropoffDistrictTopRegion.setPersistent(false);
+//         dropoffDistrictTopRegion.setCache(gemfireCache);
+//         dropoffDistrictTopRegion.setName("RegDropoffDistrictTop");
+//         dropoffDistrictTopRegion.setPersistent(false);
 
-        return dropoffDistrictTopRegion;
-    }
+//         return dropoffDistrictTopRegion;
+//     }
 
-    // RegDistrictRouteCount Configurations
-    @Bean(name = "RegDistrictRouteCount")
-    PartitionedRegionFactoryBean<String, Integer> districtRouteCountRegion(Cache gemfireCache)
-    {
-        PartitionedRegionFactoryBean<String, Integer> districtRouteCountRegion = new PartitionedRegionFactoryBean<>();
+//     // RegDistrictRouteCount Configurations
+//     @Bean(name = "RegDistrictRouteCount")
+//     PartitionedRegionFactoryBean<String, Integer> districtRouteCountRegion(Cache gemfireCache)
+//     {
+//         PartitionedRegionFactoryBean<String, Integer> districtRouteCountRegion = new PartitionedRegionFactoryBean<>();
 
-        districtRouteCountRegion.setCache(gemfireCache);
-        districtRouteCountRegion.setClose(false);
-        districtRouteCountRegion.setName("RegDistrictRouteCount");
-        districtRouteCountRegion.setPersistent(false);
+//         districtRouteCountRegion.setCache(gemfireCache);
+//         districtRouteCountRegion.setClose(false);
+//         districtRouteCountRegion.setName("RegDistrictRouteCount");
+//         districtRouteCountRegion.setPersistent(false);
 
-        return districtRouteCountRegion;
-    }
+//         return districtRouteCountRegion;
+//     }
 
-    // RegDistrictRouteTop Configurations
-    @Bean(name = "RegDistrictRouteTop")
-    PartitionedRegionFactoryBean<Integer, Object> districtRouteTopRegion(Cache gemfireCache)
-    {
-        PartitionedRegionFactoryBean<Integer, Object> districtRouteTopRegion = new PartitionedRegionFactoryBean<>();
+//     // RegDistrictRouteTop Configurations
+//     @Bean(name = "RegDistrictRouteTop")
+//     PartitionedRegionFactoryBean<Integer, Object> districtRouteTopRegion(Cache gemfireCache)
+//     {
+//         PartitionedRegionFactoryBean<Integer, Object> districtRouteTopRegion = new PartitionedRegionFactoryBean<>();
 
-        districtRouteTopRegion.setCache(gemfireCache);
-        districtRouteTopRegion.setName("RegDistrictRouteTop");
-        districtRouteTopRegion.setPersistent(false);
+//         districtRouteTopRegion.setCache(gemfireCache);
+//         districtRouteTopRegion.setName("RegDistrictRouteTop");
+//         districtRouteTopRegion.setPersistent(false);
 
-        return districtRouteTopRegion;
-    }
+//         return districtRouteTopRegion;
+//     }
 }
